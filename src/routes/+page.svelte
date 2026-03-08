@@ -1,3 +1,3 @@
 <h1>Hola
 </h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<p>Esta página está en construcción, métete a sets para escuchar música</p>
