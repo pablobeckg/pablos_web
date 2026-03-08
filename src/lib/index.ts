@@ -1,1 +1,4 @@
-// place files you want to import through the `$lib` alias in this folder.
+import { writable } from 'svelte/store';
+
+// URL del track actualmente reproducido
+export const currentTrackUrl = writable('https://soundcloud.com/callshopradio/10-22-regsam-w-zito');
