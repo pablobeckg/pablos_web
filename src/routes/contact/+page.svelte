@@ -5,6 +5,7 @@
   let subject = '';
   let message = '';
   let website = '';
+
   let success = false;
   let serverError = '';
   let loading = false;
@@ -13,9 +14,20 @@
   let subjectError = '';
   let messageError = '';
 
-  $: emailError = email && !email.includes('@') ? 'Invalid email' : '';
-  $: subjectError = subject && subject.length < 3 ? 'Subject too short' : '';
-  $: messageError = message && message.length < 10 ? 'Message too short' : '';
+  $: emailError =
+    email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      ? 'Invalid email'
+      : '';
+
+  $: subjectError =
+    subject && subject.length < 3
+      ? 'Subject too short'
+      : '';
+
+  $: messageError =
+    message && message.length < 10
+      ? 'Message too short'
+      : '';
 
   $: valid =
     !emailError &&
@@ -25,9 +37,9 @@
     subject &&
     message;
 
-  function formEnhance({ form, formData, cancel }: any) {
+  function formEnhance({ cancel }: any) {
     if (!valid) {
-      cancel(); 
+      cancel();
       return;
     }
 
@@ -40,6 +52,7 @@
       if (result.type === 'success') {
         if (result.data?.success) {
           success = true;
+
           email = '';
           subject = '';
           message = '';
@@ -51,9 +64,13 @@
         }
 
         await update();
-      } else if (result.type === 'failure') {
-        serverError = 'Validation failed on server';
-      } else if (result.type === 'error') {
+      }
+
+      if (result.type === 'failure') {
+        serverError = result.data?.error || 'Validation failed';
+      }
+
+      if (result.type === 'error') {
         serverError = result.error?.message || 'Server error';
       }
     };
@@ -71,29 +88,60 @@
 {/if}
 
 <form method="POST" class="contact-form" use:enhance={formEnhance}>
-  <input type="text" name="website" bind:value={website} class="hidden" />
+  <!-- Honeypot anti-bot -->
+  <input
+    type="text"
+    name="website"
+    bind:value={website}
+    class="hidden"
+    tabindex="-1"
+    autocomplete="off"
+  />
 
   <label>
     Email
-    <input type="email" name="email" bind:value={email} required />
-    {#if emailError}<span class="field-error">{emailError}</span>{/if}
+    <input
+      type="email"
+      name="email"
+      bind:value={email}
+      required
+    />
+    {#if emailError}
+      <span class="field-error">{emailError}</span>
+    {/if}
   </label>
 
   <label>
     Subject
-    <input name="subject" bind:value={subject} required />
-    {#if subjectError}<span class="field-error">{subjectError}</span>{/if}
+    <input
+      name="subject"
+      bind:value={subject}
+      required
+    />
+    {#if subjectError}
+      <span class="field-error">{subjectError}</span>
+    {/if}
   </label>
 
   <label>
     Message
-    <textarea name="message" rows="6" bind:value={message} required></textarea>
-    {#if messageError}<span class="field-error">{messageError}</span>{/if}
+    <textarea
+      name="message"
+      rows="6"
+      bind:value={message}
+      required
+    ></textarea>
+    {#if messageError}
+      <span class="field-error">{messageError}</span>
+    {/if}
   </label>
 
   <button type="submit" disabled={!valid || loading}>
-    {#if loading}Sending...{/if}
-    {#if !loading}{valid ? 'Send Message' : 'Fill all fields correctly'}{/if}
+    {#if loading}
+      Sending...
+    {:else}
+      {valid ? 'Send Message' : 'Fill all fields correctly'}
+    {/if}
   </button>
 </form>
 
@@ -108,19 +156,26 @@
     padding: 25px;
     border-radius: 10px;
   }
+
   label {
     display: flex;
     flex-direction: column;
     font-weight: bold;
     gap: 6px;
   }
-  input, textarea {
+
+  input,
+  textarea {
     padding: 10px;
     border-radius: 6px;
     border: 1px solid #ccc;
     font-size: 14px;
   }
-  textarea { resize: vertical; }
+
+  textarea {
+    resize: vertical;
+  }
+
   button {
     padding: 12px;
     border: none;
@@ -130,13 +185,35 @@
     font-size: 16px;
     cursor: pointer;
   }
+
   button:disabled {
     background: #ccc;
     cursor: not-allowed;
   }
-  .success { text-align: center; color: green; font-weight: bold; }
-  .error { text-align: center; color: red; font-weight: bold; }
-  .field-error { color: red; font-size: 12px; }
-  .hidden { display: none; }
-  h1 { text-align: center; margin-bottom: 25px; }
+
+  .success {
+    text-align: center;
+    color: green;
+    font-weight: bold;
+  }
+
+  .error {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+  }
+
+  .field-error {
+    color: red;
+    font-size: 12px;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 25px;
+  }
 </style>
