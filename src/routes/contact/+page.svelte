@@ -9,28 +9,12 @@
   let messageError = '';
 
   // Validaciones en tiempo real
-  $: emailError =
-    email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-      ? 'Invalid email'
-      : '';
-
-  $: subjectError =
-    subject && subject.length < 3
-      ? 'Subject too short'
-      : '';
-
-  $: messageError =
-    message && message.length < 10
-      ? 'Message too short'
-      : '';
-
-  $: valid =
-    !emailError &&
-    !subjectError &&
-    !messageError &&
-    email &&
-    subject &&
-    message;
+  $: emailError = email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ? 'Invalid email'
+    : '';
+  $: subjectError = subject && subject.length < 3 ? 'Subject too short' : '';
+  $: messageError = message && message.length < 10 ? 'Message too short' : '';
+  $: valid = !emailError && !subjectError && !messageError && email && subject && message;
 
   let success = false;
   let serverError = '';
@@ -53,7 +37,6 @@
     formData.append('_subject', `[Website] Nuevo mensaje`);
 
     try {
-      // Envía vía AJAX a Formsubmit
       const response = await fetch('https://formsubmit.co/ajax/beckgarreaud@gmail.com', {
         method: 'POST',
         body: formData
