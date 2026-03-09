@@ -1,0 +1,1 @@
+import"../chunks/DsnmJJEf.js";import"../chunks/69_IOA4Y.js";import{a as o}from"../chunks/BWA_b3VN.js";import{a as r,f as p}from"../chunks/AUG6d9ig.js";var e=p("<h1>Hola</h1> <p>Esta página está en construcción, métete a sets para escuchar música</p>",1);function i(a){var t=e();o(2),r(a,t)}export{i as component};

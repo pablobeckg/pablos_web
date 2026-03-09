@@ -1,0 +1,10 @@
+# wrangler.toml
+
+name = "pablos-web"
+main = ".svelte-kit/cloudflare/worker.js"
+account_id = "<69eaddbb62460fb53b2153d347312219>"   # reemplaza con tu account id
+workers_dev = true
+
+[assets]
+directory = "static"             # carpeta con tus archivos estáticos
+binding = "ASSETS"               # nombre interno del binding que usarás en tu Worker
