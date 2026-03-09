@@ -1,14 +1,8 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
-
   let email = '';
   let subject = '';
   let message = '';
-  let website = '';
-
-  let success = false;
-  let serverError = '';
-  let loading = false;
+  let website = ''; // Honeypot
 
   let emailError = '';
   let subjectError = '';
@@ -37,43 +31,49 @@
     subject &&
     message;
 
-  function formEnhance({ cancel }: any) {
-    if (!valid) {
-      cancel();
-      return;
-    }
+  let success = false;
+  let serverError = '';
+  let loading = false;
+
+  async function handleSubmit(event: Event) {
+    event.preventDefault();
+
+    if (!valid) return;
 
     loading = true;
     serverError = '';
+    success = false;
 
-    return async ({ result, update }: any) => {
+    const formData = new FormData();
+    formData.append('_honey', website);
+    formData.append('email', email);
+    formData.append('subject', subject);
+    formData.append('message', message);
+    formData.append('_subject', `[Website] Nuevo mensaje`);
+
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/beckgarreaud@gmail.com', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        success = true;
+        email = '';
+        subject = '';
+        message = '';
+        website = '';
+      } else {
+        serverError = data.message || 'Error sending message';
+      }
+    } catch (err: any) {
+      serverError = err.message || 'Server error';
+    } finally {
       loading = false;
-
-      if (result.type === 'success') {
-        if (result.data?.success) {
-          success = true;
-
-          email = '';
-          subject = '';
-          message = '';
-          website = '';
-
-          setTimeout(() => {
-            success = false;
-          }, 5000);
-        }
-
-        await update();
-      }
-
-      if (result.type === 'failure') {
-        serverError = result.data?.error || 'Validation failed';
-      }
-
-      if (result.type === 'error') {
-        serverError = result.error?.message || 'Server error';
-      }
-    };
+      setTimeout(() => (success = false), 5000);
+    }
   }
 </script>
 
@@ -87,11 +87,11 @@
   <p class="error">{serverError}</p>
 {/if}
 
-<form method="POST" class="contact-form" use:enhance={formEnhance}>
+<form class="contact-form" on:submit={handleSubmit}>
   <!-- Honeypot anti-bot -->
   <input
     type="text"
-    name="website"
+    name="_honey"
     bind:value={website}
     class="hidden"
     tabindex="-1"
@@ -100,12 +100,7 @@
 
   <label>
     Email
-    <input
-      type="email"
-      name="email"
-      bind:value={email}
-      required
-    />
+    <input type="email" bind:value={email} required />
     {#if emailError}
       <span class="field-error">{emailError}</span>
     {/if}
@@ -113,11 +108,7 @@
 
   <label>
     Subject
-    <input
-      name="subject"
-      bind:value={subject}
-      required
-    />
+    <input type="text" bind:value={subject} required />
     {#if subjectError}
       <span class="field-error">{subjectError}</span>
     {/if}
@@ -125,12 +116,7 @@
 
   <label>
     Message
-    <textarea
-      name="message"
-      rows="6"
-      bind:value={message}
-      required
-    ></textarea>
+    <textarea bind:value={message} rows="6" required></textarea>
     {#if messageError}
       <span class="field-error">{messageError}</span>
     {/if}
