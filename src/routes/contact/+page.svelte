@@ -2,12 +2,13 @@
   let email = '';
   let subject = '';
   let message = '';
-  let website = ''; // Honeypot
+  let website = ''; // Honeypot anti-bot
 
   let emailError = '';
   let subjectError = '';
   let messageError = '';
 
+  // Validaciones en tiempo real
   $: emailError =
     email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
       ? 'Invalid email'
@@ -36,7 +37,7 @@
   let loading = false;
 
   async function handleSubmit(event: Event) {
-    event.preventDefault();
+    event.preventDefault(); // evita recargar la página
 
     if (!valid) return;
 
@@ -45,13 +46,14 @@
     success = false;
 
     const formData = new FormData();
-    formData.append('_honey', website);
+    formData.append('_honey', website); // honeypot
     formData.append('email', email);
     formData.append('subject', subject);
     formData.append('message', message);
     formData.append('_subject', `[Website] Nuevo mensaje`);
 
     try {
+      // Envía vía AJAX a Formsubmit
       const response = await fetch('https://formsubmit.co/ajax/beckgarreaud@gmail.com', {
         method: 'POST',
         body: formData
